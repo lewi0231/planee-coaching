@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // Uses connection pooling
+  url       = env("POSTGRES_PRISMA_URL")
+  // Uses direct connection, ⚠️ make sure to keep this to `POSTGRES_URL_NON_POOLING`
+  // or you'll have dangling databases from migrations
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model Project {
+  id           String  @id @default(cuid())
+  title        String
+  description  String
+  status       String? @default("independent")
+  isPrivate    Boolean? @default(true)
+  motivation   String
+  barriers     String?
+  confidence   Int
+  reward       String
+  projectValue String?
+  isComplete   Boolean? @default(false)
+  isSelected   Boolean? @default(false)
+
+  createdAt DateTime? @default(now())
+  dueDate   String
+  updatedAt DateTime? @updatedAt
+
+  appearance   Appearance? @relation(fields: [appearanceId], references: [id])
+  appearanceId String?
+
+  notifications Notification[]
+
+  // @@index([createdAt])
+}
+
+model Appearance {
+  id String @id @default(cuid())
+
+  foreground String
+  background String
+  icon String?
+
+  project Project[]
+
+  @@unique([foreground, background, icon])
+}
+
+model Notification {
+  id String @id @default(cuid())
+
+  type      String    @default("milestone")
+  message   String
+  sender    String    @default("Admin")
+  createdAt DateTime  @default(now())
+  isRead    Boolean   @default(false)
+  readAt    DateTime?
+  emailSent Boolean?
+
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  projectId String
+}

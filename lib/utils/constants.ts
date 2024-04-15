@@ -1,0 +1,1 @@
+export const DEFAULT_NOTIFICATION_MESSAGE = "Congratulations and good luck with your new project!";
