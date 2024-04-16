@@ -1,4 +1,6 @@
 import { deleteProjectAction } from "@/actions/project-actions";
+import DisplayCard from "@/components/display-card";
+import EditableDateTimeModal from "@/components/editable-datetime-modal";
 import EditableInputModal from "@/components/editable-input-modal";
 import EditableTextareaModal from "@/components/editable-textarea-modal";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -21,7 +23,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ProjectDeep } from "@/lib/types/models";
-import { ClockIcon, DotsVerticalIcon, TrashIcon } from "@radix-ui/react-icons";
+
+import {
+  CameraIcon,
+  ClockIcon,
+  DotsVerticalIcon,
+  TrashIcon,
+} from "@radix-ui/react-icons";
 import { addDays, addHours, format, nextSaturday } from "date-fns";
 
 type Props = {
@@ -47,6 +55,7 @@ const ProjectDisplay = ({
                 <AvatarFallback
                   className={selectedProject.appearance?.background}
                 >
+                  <CameraIcon width={20} height={20} />
                   {/* <DynamicIcon
 										name={selectedProject.appearance.icon}
 										size={22}
@@ -76,11 +85,11 @@ const ProjectDisplay = ({
                 </div>
               </div>
             </div>
-            <div className="col-span-1">
-              {/* <NativeDateTimePicker
-								// selectedProject={selectedProject}
-								className=" text-xs text-primary/75"
-							/> */}
+            <div className="col-span-1 flex justify-center items-center h-full">
+              <EditableDateTimeModal
+                project={selectedProject}
+                handleOptimisticUpdate={handleOptimisticUpdate}
+              />
             </div>
           </div>
           <div className="flex items-center justify-between p-2 pb-0">
@@ -196,7 +205,35 @@ const ProjectDisplay = ({
           </div>
           <Separator />
 
-          <div className=" grid h-screen w-full grid-cols-2 gap-1 overflow-auto">
+          <div className="grid h-screen w-full grid-cols-2 gap-1 overflow-auto">
+            <DisplayCard
+              selectedProject={selectedProject}
+              key={`barriers-${selectedProject.id}`}
+              cardTitle="Project Barriers"
+            >
+              <EditableTextareaModal
+                selectedProject={selectedProject}
+                label="Barriers"
+                fieldName="barriers"
+                intent="editBarriers"
+                handleOptimisticUpdate={() => console.log()}
+                className=""
+              />
+            </DisplayCard>
+            <DisplayCard
+              selectedProject={selectedProject}
+              key={`motivation-${selectedProject.id}`}
+              cardTitle="Project Motivation"
+            >
+              <EditableTextareaModal
+                selectedProject={selectedProject}
+                label="Motivation"
+                fieldName="motivation"
+                intent="editMotivation"
+                handleOptimisticUpdate={() => console.log()}
+                className=""
+              />
+            </DisplayCard>
             {/* <Card
 							className={cn(
 								'flex flex-col p-2',
@@ -225,6 +262,7 @@ const ProjectDisplay = ({
 								/>
 							</CardContent>
 						</Card>
+            
 						<TaskListCard selectedProject={selectedProject} className="" /> */}
             {/* <EditableRichTextModal
 							cardLabel="Motivation"

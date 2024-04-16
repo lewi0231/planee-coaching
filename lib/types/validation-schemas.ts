@@ -25,11 +25,17 @@ export const CreateProjectSchema = z.object({
   projectValue: projectValidationObject.projectValue,
   reward: projectValidationObject.reward,
   dueDate: projectValidationObject.dueDate,
+  background: z.string(),
+  foreground: z.string(),
+  icon: z.string(),
 });
 
 export const ProjectIntents = {
   editTitle: z.literal("editTitle"),
   editDescription: z.literal("editDescription"),
+  editDueDate: z.literal("editDueDate"),
+  editMotivation: z.literal("editMotivation"),
+  editBarriers: z.literal("editBarriers"),
 };
 
 export const EditProjectSchema = z.discriminatedUnion("intent", [
@@ -41,6 +47,21 @@ export const EditProjectSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: ProjectIntents.editDescription,
     description: projectValidationObject.description,
+    id: projectValidationObject.id,
+  }),
+  z.object({
+    intent: ProjectIntents.editDueDate,
+    dueDate: projectValidationObject.dueDate,
+    id: projectValidationObject.id,
+  }),
+  z.object({
+    intent: ProjectIntents.editMotivation,
+    motivation: projectValidationObject.motivation,
+    id: projectValidationObject.id,
+  }),
+  z.object({
+    intent: ProjectIntents.editBarriers,
+    barriers: projectValidationObject.barriers,
     id: projectValidationObject.id,
   }),
 ]);

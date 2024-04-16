@@ -1,6 +1,6 @@
 "use client";
 
-import MultiStepForm from "@/components/multi-step-form/multi-step-form";
+import MultiStepForm from "@/components/multi-step-form";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";

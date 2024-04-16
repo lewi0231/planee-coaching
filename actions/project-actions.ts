@@ -4,8 +4,7 @@ import {
   CreateProjectSchema,
   EditProjectSchema,
 } from "@/lib/types/validation-schemas";
-import { getRandomColorCombination } from "@/lib/utils";
-import { getRandomIconName } from "@/lib/utils/dynamic-icons";
+
 import prisma from "@/prisma/db";
 import { z } from "zod";
 
@@ -69,6 +68,7 @@ export async function onSubmitProjectEditAction(
   const formData = Object.fromEntries(data);
   const parsed = EditProjectSchema.safeParse(formData);
 
+  console.log(formData);
   if (!parsed.success) {
     console.error("Server Action: formData Error:", parsed);
     return {
@@ -85,6 +85,10 @@ export async function onSubmitProjectEditAction(
     }
     case "editDescription": {
       updateObject = { description: parsed.data.description };
+      break;
+    }
+    case "editDueDate": {
+      updateObject = { dueDate: parsed.data.dueDate };
       break;
     }
     default: {
@@ -119,10 +123,11 @@ async function createProject({
   reward,
   confidence,
   barriers,
+  background,
+  foreground,
+  icon,
 }: z.output<typeof CreateProjectSchema>) {
   try {
-    const icon = getRandomIconName();
-    const { foreground, background } = getRandomColorCombination();
     const existingAppearance = await prisma.appearance.findUnique({
       where: {
         foreground_background_icon: {

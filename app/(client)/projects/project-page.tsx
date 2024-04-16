@@ -68,10 +68,13 @@ const ProjectPage = ({ projects }: Props) => {
       ...newProject,
       notifications: [],
       isPrivate: true,
-      isSelected: false,
+      isSelected: true,
     };
 
-    const temporaryProjects = JSON.parse(JSON.stringify(optimisticProjects));
+    const temporaryProjects = optimisticProjects.map((project) => ({
+      ...project,
+      isSelected: false,
+    }));
     temporaryProjects.push(newProjectEdited);
 
     setOptimisticProjects(temporaryProjects);

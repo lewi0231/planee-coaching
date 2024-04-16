@@ -10,21 +10,16 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import CustomDialog from "./custom-dialog";
+import TextAreaFormField from "./textarea-form-field";
 import { Button } from "./ui/button";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "./ui/form";
-import { Input } from "./ui/input";
-import { Textarea } from "./ui/textarea";
+import { Form } from "./ui/form";
 
 type Props = {
   selectedProject: ProjectDeep;
-  fieldName: keyof Pick<CreateProjectType, "title" | "description">;
+  fieldName: keyof Pick<
+    CreateProjectType,
+    "title" | "description" | "motivation" | "barriers"
+  >;
   intent: keyof typeof ProjectIntents;
   className: string;
   label: string;
@@ -69,6 +64,14 @@ export default function EditableTextareaModal({
         formData.append("description", data.description);
         break;
       }
+      case "editBarriers": {
+        formData.append("barriers", data.barriers);
+        break;
+      }
+      case "editMotivation": {
+        formData.append("motivation", data.motivation);
+        break;
+      }
     }
 
     const response = await onSubmitProjectEditAction(formData);
@@ -87,15 +90,16 @@ export default function EditableTextareaModal({
       modalLabel={label}
       isOpen={isOpen}
       setIsOpen={setIsOpen}
+      backgroundContentColor={selectedProject.appearance?.background}
     >
       <Form {...form}>
         <form
           // ref={formRef}
-          className=" space-y-3"
+          className=" space-y-3 w-full m-auto"
           // action={formAction}
           onSubmit={form.handleSubmit(onSubmit)}
         >
-          <FormField
+          {/* <FormField
             control={form.control}
             name={fieldName}
             render={({ field }) => (
@@ -109,8 +113,14 @@ export default function EditableTextareaModal({
                 <FormMessage />
               </FormItem>
             )}
+          /> */}
+          <TextAreaFormField
+            name={fieldName}
+            label={label}
+            description="Edit your motivation..."
           />
-          <FormField
+
+          {/* <FormField
             name="id"
             render={({ field }) => (
               <FormItem>
@@ -125,10 +135,12 @@ export default function EditableTextareaModal({
                 <Input {...field} type="hidden" />
               </FormItem>
             )}
-          />
-          <Button className="w-1/2" size="lg" type="submit">
-            Save {label}
-          </Button>
+          /> */}
+          <div className="w-1/2 m-auto">
+            <Button className="w-full" size="lg" type="submit">
+              Save {label}
+            </Button>
+          </div>
         </form>
       </Form>
     </CustomDialog>

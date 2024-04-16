@@ -10,13 +10,14 @@ import {
 } from "./ui/dialog";
 
 type Props = {
-  className: string;
-  triggerContent: string;
-  triggerStyle: ButtonProps["variant"];
+  className?: string;
+  triggerContent: React.ReactNode;
+  triggerStyle?: ButtonProps["variant"];
   modalLabel: string;
   children: React.ReactNode;
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
+  backgroundContentColor?: string;
 };
 
 const CustomDialog = ({
@@ -27,25 +28,26 @@ const CustomDialog = ({
   children,
   isOpen,
   setIsOpen,
+  backgroundContentColor,
 }: Props) => {
-  // const [dialogOpen, setDialogOpen] = useState(false);
-
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger asChild className="w-full">
         <Button
           variant={triggerStyle}
           className={cn(
-            "m-0 flex h-full w-full justify-start p-0 text-left leading-tight",
-            className
+            className,
+            "m-0 flex h-full w-full justify-start p-2 text-left leading-tight whitespace-normal"
           )}
         >
           {triggerContent}
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className={cn("", backgroundContentColor)}>
         <DialogHeader>
-          <DialogTitle className="text-3xl">{modalLabel}</DialogTitle>
+          <DialogTitle className="text-3xl text-center">
+            {modalLabel}
+          </DialogTitle>
         </DialogHeader>
         {children}
       </DialogContent>
