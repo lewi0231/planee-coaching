@@ -45,9 +45,11 @@ const MultiStepForm = ({
       projectValue: "1000.00",
       dueDate: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
       confidence: 4,
-      ...getRandomColorCombination(),
+      appearance: {
+        ...getRandomColorCombination(),
+        icon: "CameraIcon",
+      },
       // TODO - need to implement dynamic icons
-      icon: "CameraIcon",
     },
   });
 
@@ -101,69 +103,14 @@ const MultiStepForm = ({
       key="reward"
       description="What do you promise to give yourself once you've completed this?"
     />,
-    // <FormField
-    //   key="reward"
-    //   control={form.control}
-    //   name="reward"
-    //   render={({
-    //     field: { onChange, value, ...rest },
-    //     fieldState: { error },
-    //   }) => (
-    //     <FormItem className="space-y-4">
-    //       <FormControl>
-    //         <Input
-    //           placeholder="enter"
-    //           onChange={(text) => {
-    //             onChange(text);
-    //             form.trigger("reward");
-    //           }}
-    //           {...rest}
-    //         />
-    //       </FormControl>
-    //       <FormDescription className="pl-3">
-    //         Click <em>Save Me</em> when you have finished editing!
-    //       </FormDescription>
-    //       <FormMessage>{error?.message ? error.message : ""}</FormMessage>
-    //     </FormItem>
-    //   )}
-    // />,
 
     <DateTimeField
       label="Project Deadline"
       key="dueDate"
       name="dueDate"
       description="If you had to pay someone to do this for you, how much would you pay?!"
+      className="w-2/3"
     />,
-    // <FormField
-    //   key="confidence"
-    //   control={form.control}
-    //   name="confidence"
-    //   render={({
-    //     field: { onChange, value, ...rest },
-    //     fieldState: { error },
-    //   }) => (
-    //     <FormItem className="space-y-4">
-    //       <FormControl>
-    //         <Slider
-    //           className="w-5/6 m-auto cursor-pointer"
-    //           {...rest}
-    //           onValueChange={(obj) => {
-    //             onChange(obj[0]);
-    //             form.trigger("confidence");
-    //           }}
-    //           value={[value]}
-    //           min={1}
-    //           max={7}
-    //           step={1}
-    //         />
-    //       </FormControl>
-    //       <FormDescription className="pl-3">
-    //         Enter confidence level for completing your project.
-    //       </FormDescription>
-    //       <FormMessage>{error?.message ? error.message : ""}</FormMessage>
-    //     </FormItem>
-    //   )}
-    // />,
     <SliderInputFormField
       name="confidence"
       label="Project Confidence"
@@ -187,9 +134,14 @@ const MultiStepForm = ({
     formData.append("dueDate", data.dueDate);
     formData.append("reward", data.reward);
     formData.append("projectValue", data.projectValue);
-    formData.append("background", data.background);
-    formData.append("foreground", data.foreground);
-    formData.append("icon", data.icon);
+    formData.append(
+      "appearance",
+      JSON.stringify({
+        background: data.appearance.background,
+        foreground: data.appearance.foreground,
+        icon: "CameraIcon",
+      })
+    );
 
     const response = await onSubmitCreateProjectAction(formData);
 
@@ -208,7 +160,7 @@ const MultiStepForm = ({
   return (
     <Form {...form}>
       <form
-        className=" flex flex-col items-center text-lg h-full gap-10 w-full"
+        className=" flex flex-col items-center text-lg h-full gap-10 w-2/3 m-auto"
         onSubmit={form.handleSubmit(onSubmit)}
       >
         {formInputSequence[currentQuestion]}

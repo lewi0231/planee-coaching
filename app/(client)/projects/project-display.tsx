@@ -22,21 +22,32 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ProjectDeep } from "@/lib/types/models";
+import { ProjectModel } from "@/lib/types/models";
+import { DollarSignIcon, Gift, NotebookIcon } from "lucide-react";
 
+import CurrencyInputModal from "@/components/currency-input-modal";
+import DiaryNotesModal from "@/components/diary-notes-modal";
+import { ProjectIntent } from "@/lib/types/validation-schemas";
 import {
   CameraIcon,
   ClockIcon,
   DotsVerticalIcon,
+  RocketIcon,
+  StopIcon,
   TrashIcon,
 } from "@radix-ui/react-icons";
-import { addDays, addHours, format, nextSaturday } from "date-fns";
 
 type Props = {
-  selectedProject: ProjectDeep | undefined;
-  handleOptimisticUpdate: (projectData: Partial<ProjectDeep>) => void;
+  selectedProject: ProjectModel | undefined;
+  handleOptimisticUpdate: (
+    projectData: Partial<Omit<ProjectModel, "id">> &
+      Pick<ProjectModel, "id"> & { intent: keyof ProjectIntent }
+  ) => void;
   handleOptimisticDelete: (projectId: string) => void;
 };
+
+const testNote =
+  "this is a note that I am using for testing the application it is my previous note";
 
 const ProjectDisplay = ({
   selectedProject,
@@ -62,7 +73,7 @@ const ProjectDisplay = ({
 									/> */}
                 </AvatarFallback>
               </Avatar>
-              <div className="grid gap-1">
+              <div className="grid gap-0">
                 <EditableInputModal
                   key={`${selectedProject.id}-title`}
                   fieldName="title"
@@ -71,6 +82,7 @@ const ProjectDisplay = ({
                   className={"font-bold text-xl"}
                   label={"Project Title"}
                   handleOptimisticUpdate={handleOptimisticUpdate}
+                  fieldDescription="Edit your project title and click save."
                 />
                 <div className="line-clamp-1 text-sm">
                   <EditableTextareaModal
@@ -81,12 +93,14 @@ const ProjectDisplay = ({
                     className={""}
                     label={"Project Description"}
                     handleOptimisticUpdate={handleOptimisticUpdate}
+                    fieldDescription="Change your project description and click save."
                   />
                 </div>
               </div>
             </div>
-            <div className="col-span-1 flex justify-center items-center h-full">
+            <div className="col-span-1 flex justify-end items-center h-full">
               <EditableDateTimeModal
+                key={`${selectedProject.id}-dueDate`}
                 project={selectedProject}
                 handleOptimisticUpdate={handleOptimisticUpdate}
               />
@@ -131,55 +145,29 @@ const ProjectDisplay = ({
                       </Button>
                     </TooltipTrigger>
                   </PopoverTrigger>
-                  <PopoverContent className="flex w-[535px] p-0">
-                    <div className="flex flex-col gap-2 border-r px-2 py-4">
-                      <div className="px-4 text-sm font-medium">
-                        New Due Date
-                      </div>
-                      <div className="grid min-w-[250px] gap-1">
-                        <Button
-                          variant="ghost"
-                          className="justify-start font-normal"
-                        >
-                          Later today{" "}
-                          <span className="ml-auto text-muted-foreground">
-                            {format(addHours(today, 4), "E, h:m b")}
-                          </span>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          className="justify-start font-normal"
-                        >
-                          Tomorrow
-                          <span className="ml-auto text-muted-foreground">
-                            {format(addDays(today, 1), "E, h:m b")}
-                          </span>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          className="justify-start font-normal"
-                        >
-                          This weekend
-                          <span className="ml-auto text-muted-foreground">
-                            {format(nextSaturday(today), "E, h:m b")}
-                          </span>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          className="justify-start font-normal"
-                        >
-                          Next week
-                          <span className="ml-auto text-muted-foreground">
-                            {format(addDays(today, 7), "E, h:m b")}
-                          </span>
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="p-2">{/* <Calendar /> */}</div>
-                  </PopoverContent>
+                  <PopoverContent className="flex w-[535px] p-0"></PopoverContent>
                 </Popover>
                 {/* TODO - this is yet to be implemented - Promodoro timer */}
                 <TooltipContent>Start timer</TooltipContent>
+              </Tooltip>
+              <Separator orientation="vertical" className="mx-1 h-6" />
+              <Tooltip>
+                <TooltipTrigger>
+                  <EditableInputModal
+                    key={`${selectedProject.id}-reward`}
+                    fieldName="reward"
+                    selectedProject={selectedProject}
+                    intent={"editReward"}
+                    className={"font-bold text-xl"}
+                    label={"Reward"}
+                    handleOptimisticUpdate={handleOptimisticUpdate}
+                    fieldDescription="Edit and save if you can think of a better reward!  Better ~ Motivation."
+                    Icon={Gift}
+                  />
+                </TooltipTrigger>
+
+                {/* TODO - this is yet to be implemented - Promodoro timer */}
+                <TooltipContent>View or Edit Your Reward!</TooltipContent>
               </Tooltip>
             </div>
 
@@ -205,35 +193,71 @@ const ProjectDisplay = ({
           </div>
           <Separator />
 
-          <div className="grid h-screen w-full grid-cols-2 gap-1 overflow-auto">
+          <div className="grid h-auto w-full grid-cols-2 gap-1 overflow-auto">
             <DisplayCard
               selectedProject={selectedProject}
-              key={`barriers-${selectedProject.id}`}
-              cardTitle="Project Barriers"
+              cardTitle="Barriers"
+              Icon={StopIcon}
+              className=" bg-white m-auto rounded-md p-0 mb-4 outline-2 outline-offset-2 hover:outline outline-gray-600"
             >
               <EditableTextareaModal
+                key={`${selectedProject.id}-barriers`}
                 selectedProject={selectedProject}
                 label="Barriers"
                 fieldName="barriers"
                 intent="editBarriers"
-                handleOptimisticUpdate={() => console.log()}
+                handleOptimisticUpdate={handleOptimisticUpdate}
                 className=""
+                fieldDescription="Have a think about what stands in your way from achieving this goal."
               />
             </DisplayCard>
             <DisplayCard
               selectedProject={selectedProject}
-              key={`motivation-${selectedProject.id}`}
-              cardTitle="Project Motivation"
+              cardTitle="Motivation"
+              Icon={RocketIcon}
+              className=" bg-white m-auto rounded-md p-0 mb-4 outline-2 outline-offset-2 hover:outline outline-gray-600"
             >
               <EditableTextareaModal
+                key={`${selectedProject.id}-motivation`}
                 selectedProject={selectedProject}
                 label="Motivation"
                 fieldName="motivation"
                 intent="editMotivation"
-                handleOptimisticUpdate={() => console.log()}
+                handleOptimisticUpdate={handleOptimisticUpdate}
                 className=""
+                fieldDescription="Why is that you want to achieve this goal?"
               />
             </DisplayCard>
+            <DisplayCard
+              selectedProject={selectedProject}
+              cardTitle="Your Diary"
+              Icon={NotebookIcon}
+              description="Your last diary entry"
+              className="p-0"
+            >
+              <DiaryNotesModal
+                selectedProject={selectedProject}
+                handleOptimisticUpdate={handleOptimisticUpdate}
+                fieldName="diaryNote"
+              />
+            </DisplayCard>
+            <DisplayCard
+              selectedProject={selectedProject}
+              cardTitle="Value"
+              Icon={DollarSignIcon}
+              description="The value you've placed on this project"
+              className=" bg-white m-auto rounded-md p-0 mb-4 outline-2 outline-offset-2 hover:outline outline-gray-600 w-1/2"
+            >
+              <CurrencyInputModal
+                handleOptimisticUpdate={handleOptimisticUpdate}
+                selectedProject={selectedProject}
+                fieldName="projectValue"
+                label="Project Value"
+                fieldDescription="What value you place on this project"
+                intent="editProjectValue"
+              />
+            </DisplayCard>
+
             {/* <Card
 							className={cn(
 								'flex flex-col p-2',

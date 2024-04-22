@@ -1,12 +1,13 @@
 "use server";
 
+import { addDiaryNoteToProject } from "@/lib/db/diary-note";
+import { createNewProjectInDatabase } from "@/lib/db/project";
 import {
   CreateProjectSchema,
   EditProjectSchema,
 } from "@/lib/types/validation-schemas";
 
 import prisma from "@/prisma/db";
-import { z } from "zod";
 
 export type FormState = {
   status: "success" | "error";
@@ -18,12 +19,13 @@ export async function getProjectData() {
     include: {
       appearance: true,
       notifications: true,
+      diaryNotes: true,
     },
     orderBy: {
       dueDate: "asc",
     },
   });
-  console.log(projects.map((project) => project.id).join(" "));
+
   return projects;
 }
 
@@ -91,6 +93,10 @@ export async function onSubmitProjectEditAction(
       updateObject = { dueDate: parsed.data.dueDate };
       break;
     }
+    case "editBarriers": {
+      updateObject = { barriers: parsed.data.barriers };
+      break;
+    }
     default: {
       updateObject = {};
     }
@@ -111,66 +117,57 @@ export async function onSubmitProjectEditAction(
   };
 }
 
-// action helper function
-async function createProject({
-  // userId,
-  id,
-  title,
-  description,
-  motivation,
-  dueDate,
-  projectValue,
-  reward,
-  confidence,
-  barriers,
-  background,
-  foreground,
-  icon,
-}: z.output<typeof CreateProjectSchema>) {
-  try {
-    const existingAppearance = await prisma.appearance.findUnique({
-      where: {
-        foreground_background_icon: {
-          foreground,
-          background,
-          icon,
-        },
-      },
-    });
+export async function onSubmitAddDiaryNoteAction(
+  data: FormData
+): Promise<FormState> {
+  const formData = Object.fromEntries(data);
+  const parsed = EditProjectSchema.safeParse(formData);
 
-    return await prisma.project.create({
-      data: {
-        id,
-        title,
-        description,
-        motivation,
-        dueDate,
-        projectValue,
-        reward,
-        confidence,
-        barriers,
-        notifications: {
-          create: {
-            message: "Well done!  Good luck!",
-          },
-        },
-        appearance: existingAppearance
-          ? {
-              connect: {
-                id: existingAppearance.id,
-              },
-            }
-          : {
-              create: {
-                foreground,
-                background,
-                icon,
-              },
-            },
+  console.log("Diary note form data", formData);
+  if (!parsed.success) {
+    console.error("Server Action: formData Error:", parsed);
+    return {
+      status: "error",
+      message: "Invalid form data",
+    };
+  }
+
+  if (parsed.data.intent !== "addDiaryNote") {
+    return {
+      status: "error",
+      message: "Incorrent intent",
+    };
+  }
+
+  const result = await addDiaryNoteToProject(parsed.data.id, {
+    id: parsed.data.noteId,
+    note: parsed.data.diaryNote,
+    createdAt: new Date(),
+  });
+
+  if (!result) {
+    return {
+      status: "error",
+      message: "There was a problem retrieving existing diary notes",
+    };
+  }
+
+  return {
+    status: "success",
+    message: "Project Diary Note Added",
+  };
+}
+
+async function getProjectDiaryNotes(id: string) {
+  try {
+    return await prisma.diaryNote.findMany({
+      where: {
+        projectId: id,
       },
     });
   } catch (error) {
-    throw new Error(`Database Error: ${error}`);
+    console.error("DB Error: unable to retrieve diary notes for projectId", id);
+    return;
   }
 }
 
@@ -178,10 +175,12 @@ export async function onSubmitCreateProjectAction(
   data: FormData
 ): Promise<FormState> {
   const formData = Object.fromEntries(data);
+  console.log("Testing what formData looks like: ", formData);
 
   const parsed = CreateProjectSchema.safeParse({
     ...formData,
     confidence: parseInt(formData.confidence as string),
+    appearance: JSON.parse(formData.appearance as string),
   });
 
   if (!parsed.success) {
@@ -192,7 +191,7 @@ export async function onSubmitCreateProjectAction(
     };
   }
 
-  await createProject(parsed.data);
+  await createNewProjectInDatabase(parsed.data);
 
   return {
     status: "success",

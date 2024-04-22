@@ -1,18 +1,25 @@
-import { type Appearance, type Notification } from "@prisma/client";
+import {
+  Appearance,
+  DiaryNote,
+  Project,
+  type Notification,
+} from "@prisma/client";
 
-export type ProjectDeep = {
-  id: string;
-  title: string;
-  description: string;
-  motivation: string;
-  barriers: string;
-  confidence: number;
-  reward: string;
-  projectValue: string;
-  dueDate: string;
-  isSelected: boolean;
-  notifications?: Notification[];
-  appearance?: Appearance;
-  appearanceId?: string;
-  isPrivate: boolean;
+export type ProjectModel = (Pick<
+  Project,
+  | "id"
+  | "dueDate"
+  | "motivation"
+  | "barriers"
+  | "description"
+  | "title"
+  | "reward"
+  | "projectValue"
+  | "confidence"
+> &
+  Partial<Project>) & {
+  diaryNotes?: (Partial<DiaryNote> &
+    Pick<DiaryNote, "createdAt" | "note" | "id">)[];
+} & { notifications?: Partial<Notification>[] } & {
+  appearance?: Partial<Appearance> | null;
 };

@@ -1,30 +1,51 @@
-import { ProjectDeep } from "@/lib/types/models";
+import { ProjectModel } from "@/lib/types/models";
 import { cn } from "@/lib/utils";
+import { IconProps } from "@radix-ui/react-icons/dist/types";
+import { LucideIcon } from "lucide-react";
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
 
 type Props = {
   children: React.ReactNode;
-  selectedProject: ProjectDeep;
+  selectedProject: ProjectModel;
   cardTitle: string;
+  Icon?:
+    | React.ForwardRefExoticComponent<
+        IconProps & React.RefAttributes<SVGSVGElement>
+      >
+    | LucideIcon;
+  description?: string;
+  className?: string;
 };
 
-const DisplayCard = ({ children, selectedProject, cardTitle }: Props) => {
+const DisplayCard = ({
+  children,
+  selectedProject,
+  cardTitle,
+  Icon,
+  description,
+  className,
+}: Props) => {
   const background = selectedProject.appearance?.background;
-  console.log(background);
+
   return (
     <Card className={cn("h-fit px-2", background)}>
-      <CardHeader>
-        <CardTitle className="m-auto ">{cardTitle}</CardTitle>
-      </CardHeader>
-      <CardContent
-        className={cn(
-          " bg-white m-auto rounded-md p-0 mb-4 outline-2 outline-offset-2 hover:outline",
-          `outline-gray-600`
+      <CardHeader className="px-2 pb-2 pt-2">
+        <CardTitle className="flex justify-start gap-2 text-lg items-center">
+          {Icon ? <Icon width={18} height={18} strokeWidth={1} /> : ""}
+          {cardTitle}
+        </CardTitle>
+        {description && (
+          <CardDescription className="text-xs">{description}</CardDescription>
         )}
-      >
-        {children}
-      </CardContent>
+      </CardHeader>
+      <CardContent className={cn(className)}>{children}</CardContent>
     </Card>
   );
 };

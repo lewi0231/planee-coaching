@@ -6,6 +6,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import { useFormContext } from "react-hook-form";
 
 type Props = {
@@ -27,9 +28,11 @@ const InputFormField = ({ name, label, description, className }: Props) => {
       control={control}
       name={name}
       render={({ field: { onChange, value, ...rest } }) => (
-        <FormItem className="space-y-4 w-1/2">
+        <FormItem className="space-y-4 m-auto">
           {label && (
-            <label className="block text-lg font-medium">{label}</label>
+            <label className="block text-lg font-xl pb-2 font-semibold">
+              {label}
+            </label>
           )}
           <FormControl className="w-full">
             <Input
@@ -39,7 +42,7 @@ const InputFormField = ({ name, label, description, className }: Props) => {
                 onChange(text);
                 trigger(name);
               }}
-              className={className}
+              className={cn("bg-white", className)}
               {...rest}
             />
           </FormControl>

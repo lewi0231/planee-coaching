@@ -1,13 +1,13 @@
 import { setSelectedProject } from "@/actions/project-actions";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ProjectDeep } from "@/lib/types/models";
+import { ProjectModel } from "@/lib/types/models";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { ComponentProps } from "react";
 
 type Props = {
-  project: ProjectDeep;
+  project: ProjectModel;
   handleOptimisticSelect: ({
     projectId,
     reset,
@@ -28,15 +28,14 @@ const ProjectListCard = ({
   return (
     <form
       className={cn(
-        " rounded-lg border p-3 text-left text-sm shadow-sm shadow-primary/30 transition-all hover:bg-accent ",
-        isSelected ? `bg-opacity-25` : "",
+        " rounded-lg border p-3 text-left text-sm shadow-sm shadow-primary/30 transition-all hover:bg-accent outline outline-2 outline-transparent duration-500",
+        isSelected ? " outline-gray-600" : "",
         className
       )}
       action={async () => {
-        handleOptimisticSelect({ projectId: project.id });
-
         await setSelectedProject(project.id);
       }}
+      onClick={() => handleOptimisticSelect({ projectId: project.id })}
     >
       <button
         type="submit"
@@ -80,7 +79,7 @@ const ProjectListCard = ({
         <div className="flex items-center gap-2">
           <Badge
             key={project.id}
-            variant={getBadgeVariantFromLabel(project.isPrivate)}
+            variant={getBadgeVariantFromLabel(project.isPrivate ?? false)}
           >
             {project.isPrivate ? "private" : "published"}
           </Badge>

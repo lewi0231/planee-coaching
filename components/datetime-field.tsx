@@ -35,7 +35,7 @@ const DateTimeField = ({
       control={control}
       name={name}
       render={({ field: { onChange, value, ...rest } }) => (
-        <FormItem className={`space-y-4 w-1/2 ${className}`}>
+        <FormItem className={`space-y-4 ${className}`}>
           {label && (
             <label className="block text-lg font-medium">{label}</label>
           )}
@@ -53,7 +53,7 @@ const DateTimeField = ({
                 trigger(name);
               }}
               value={value}
-              className="cursor-pointer rounded border py-1 "
+              className="cursor-pointer rounded border py-1 bg-white"
               min={format(minDate, "yyyy-MM-dd'T'HH:mm")}
             />
           </FormControl>

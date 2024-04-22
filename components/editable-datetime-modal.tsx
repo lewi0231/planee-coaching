@@ -1,19 +1,28 @@
 import { onSubmitProjectEditAction } from "@/actions/project-actions";
-import { ProjectDeep } from "@/lib/types/models";
-import { EditProjectSchema } from "@/lib/types/validation-schemas";
+import { ProjectModel } from "@/lib/types/models";
+import {
+  EditProjectSchema,
+  ProjectIntent,
+} from "@/lib/types/validation-schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { formatDistanceToNow } from "date-fns";
+import { format, getDate } from "date-fns";
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import CustomDialog from "./custom-dialog";
 import DateTimeField from "./datetime-field";
 import { Button } from "./ui/button";
 import { Form } from "./ui/form";
 
+// Dynamically rendering on the client due to shadcn SSR issues.
+const CustomDialog = dynamic(() => import("./custom-dialog"), { ssr: false });
+
 type Props = {
-  project: ProjectDeep;
-  handleOptimisticUpdate: (projectData: Partial<ProjectDeep>) => void;
+  project: ProjectModel;
+  handleOptimisticUpdate: (
+    projectData: Partial<Omit<ProjectModel, "id">> &
+      Pick<ProjectModel, "id"> & { intent: keyof ProjectIntent }
+  ) => void;
 };
 
 const EditableDateTimeModal = ({ project, handleOptimisticUpdate }: Props) => {
@@ -35,6 +44,8 @@ const EditableDateTimeModal = ({ project, handleOptimisticUpdate }: Props) => {
       formData.append("dueDate", data.dueDate);
       formData.append("intent", data.intent);
 
+      handleOptimisticUpdate(data);
+
       const response = await onSubmitProjectEditAction(formData);
 
       setIsOpen(false);
@@ -47,26 +58,33 @@ const EditableDateTimeModal = ({ project, handleOptimisticUpdate }: Props) => {
       isOpen={isOpen}
       setIsOpen={setIsOpen}
       triggerContent={
-        <div>
-          <span className="text-xs">Due: </span>
-          <span className="underline text-sm">
-            {formatDistanceToNow(project.dueDate)}
+        <div className="flex flex-col justify-center items-center tracking-tighter">
+          <span className="text-2xl">
+            {getDate(project.dueDate) < 10
+              ? `0${getDate(project.dueDate)}`
+              : getDate(project.dueDate)}
+          </span>
+          <span className="text-sm -mt-1 uppercase tracking-normal font-medium">
+            {format(project.dueDate, "MMM")}
           </span>
         </div>
       }
       modalLabel="Due Date"
       triggerStyle="ghost"
-      className="text-xs text-opacity-75"
+      className="text-xs text-opacity-75 justify-end w-fit px-4"
+      backgroundContentColor={project.appearance?.background}
     >
       <Form {...form}>
-        <form className="" onSubmit={form.handleSubmit(onSubmit)}>
+        <form className=" space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
           <DateTimeField
             name={"dueDate"}
             description="Click save when you're happy with your new project end date!"
           />
-          <Button type="submit" size="lg">
-            Save
-          </Button>
+          <div className="w-1/2 ">
+            <Button type="submit" size="lg">
+              Save
+            </Button>
+          </div>
         </form>
       </Form>
     </CustomDialog>

@@ -8,8 +8,9 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { CreateProjectType } from "@/lib/types/form-fields";
-import { ProjectDeep } from "@/lib/types/models";
+
+import { ProjectModel } from "@/lib/types/models";
+import { ProjectIntent } from "@/lib/types/validation-schemas";
 import { isBefore } from "date-fns";
 import { useEffect, useState } from "react";
 import CreateProjectModal from "./create-project-modal";
@@ -17,12 +18,12 @@ import ProjectDisplay from "./project-display";
 import ProjectsList from "./project-list";
 
 type Props = {
-  projects: ProjectDeep[];
+  projects: ProjectModel[];
 };
 
 const ProjectPage = ({ projects }: Props) => {
   const [optimisticProjects, setOptimisticProjects] =
-    useState<ProjectDeep[]>(projects);
+    useState<ProjectModel[]>(projects);
 
   const handleOptimisticSelect = ({
     projectId,
@@ -31,26 +32,48 @@ const ProjectPage = ({ projects }: Props) => {
     projectId?: string;
     reset?: boolean;
   }) => {
+    let updatedProjects;
     if (reset) {
-      const updatedProjects = optimisticProjects.map((project) => {
+      updatedProjects = optimisticProjects.map((project) => {
         return { ...project, isSelected: false };
       });
-      setOptimisticProjects(updatedProjects);
-      return;
+    } else {
+      updatedProjects = optimisticProjects.map((project) => {
+        if (project.id === projectId) return { ...project, isSelected: true };
+        return { ...project, isSelected: false };
+      });
     }
-
-    const updatedProjects = optimisticProjects.map((project) => {
-      if (project.id === projectId) return { ...project, isSelected: true };
-      return { ...project, isSelected: false };
-    });
+    console.log("Optimistic select updated", projectId);
     setOptimisticProjects(updatedProjects);
   };
 
-  const handleOptimisticUpdate = (projectData: Partial<ProjectDeep>) => {
-    const updatedProjects = optimisticProjects.map((project) => {
-      if (project.id === projectData.id) return { ...project, ...projectData };
-      return project;
-    });
+  useEffect(() => {
+    console.log("UPDATED", optimisticProjects);
+  }, [optimisticProjects]);
+
+  const handleOptimisticUpdate = (
+    projectData: Partial<Omit<ProjectModel, "id">> &
+      Pick<ProjectModel, "id"> & { intent: keyof ProjectIntent }
+  ) => {
+    let updatedProjects;
+
+    if (projectData.intent === "addDiaryNote") {
+      updatedProjects = optimisticProjects.map((project) => {
+        if (project.id === projectData.id) {
+          // Is only ever a single note.
+          const newNotes = projectData.diaryNotes ? projectData.diaryNotes : [];
+          const oldNotes = project.diaryNotes ? project.diaryNotes : [];
+          return { ...project, diaryNotes: [...oldNotes, ...newNotes] };
+        }
+        return project;
+      });
+    } else {
+      updatedProjects = optimisticProjects.map((project) => {
+        if (project.id === projectData.id)
+          return { ...project, ...projectData };
+        return project;
+      });
+    }
 
     setOptimisticProjects(updatedProjects);
   };
@@ -63,7 +86,7 @@ const ProjectPage = ({ projects }: Props) => {
     setOptimisticProjects(updatedProjects);
   };
 
-  const handleOptimisticCreate = (newProject: CreateProjectType) => {
+  const handleOptimisticCreate = (newProject: ProjectModel) => {
     const newProjectEdited = {
       ...newProject,
       notifications: [],
@@ -133,10 +156,10 @@ const ProjectPage = ({ projects }: Props) => {
                 <TabsContent value="all" className="m-0">
                   <div className="flex flex-col gap-2 overflow-auto p-4 pt-2">
                     <ProjectsList
-                      key={`${
-                        optimisticProjects.find((project) => project.isSelected)
-                          ?.id
-                      }-all`}
+                      // key={`${
+                      //   optimisticProjects.find((project) => project.isSelected)
+                      //     ?.id
+                      // }-all`}
                       projects={optimisticProjects}
                       handleOptimisticSelect={handleOptimisticSelect}
                     />
@@ -145,10 +168,10 @@ const ProjectPage = ({ projects }: Props) => {
                 <TabsContent value="active" className="m-0">
                   <div className="flex flex-col gap-2 overflow-auto p-4 pt-2">
                     <ProjectsList
-                      key={`${
-                        optimisticProjects.find((project) => project.isSelected)
-                          ?.id
-                      }-active`}
+                      // key={`${
+                      //   optimisticProjects.find((project) => project.isSelected)
+                      //     ?.id
+                      // }-active`}
                       projects={optimisticProjects}
                       handleOptimisticSelect={handleOptimisticSelect}
                       filterActiveOnly={true}

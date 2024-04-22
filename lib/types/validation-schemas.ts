@@ -12,6 +12,7 @@ const projectValidationObject = {
   projectValue: z.string(),
   reward: z.string().min(1, "You need to enter at least one character."),
   dueDate: z.string().refine((val) => isValid(parseISO(val))),
+  diaryNote: z.string(),
 };
 
 export const CreateProjectSchema = z.object({
@@ -25,9 +26,11 @@ export const CreateProjectSchema = z.object({
   projectValue: projectValidationObject.projectValue,
   reward: projectValidationObject.reward,
   dueDate: projectValidationObject.dueDate,
-  background: z.string(),
-  foreground: z.string(),
-  icon: z.string(),
+  appearance: z.object({
+    background: z.string(),
+    foreground: z.string(),
+    icon: z.string(),
+  }),
 });
 
 export const ProjectIntents = {
@@ -36,6 +39,13 @@ export const ProjectIntents = {
   editDueDate: z.literal("editDueDate"),
   editMotivation: z.literal("editMotivation"),
   editBarriers: z.literal("editBarriers"),
+  editReward: z.literal("editReward"),
+  addDiaryNote: z.literal("addDiaryNote"),
+  editProjectValue: z.literal("editProjectValue"),
+};
+
+export type ProjectIntent = {
+  [P in keyof typeof ProjectIntents]: z.infer<(typeof ProjectIntents)[P]>;
 };
 
 export const EditProjectSchema = z.discriminatedUnion("intent", [
@@ -64,10 +74,33 @@ export const EditProjectSchema = z.discriminatedUnion("intent", [
     barriers: projectValidationObject.barriers,
     id: projectValidationObject.id,
   }),
+  z.object({
+    intent: ProjectIntents.editReward,
+    reward: projectValidationObject.reward,
+    id: projectValidationObject.id,
+  }),
+  z.object({
+    intent: ProjectIntents.addDiaryNote,
+    id: projectValidationObject.id,
+    diaryNote: projectValidationObject.diaryNote,
+    noteId: z.string(),
+  }),
+  z.object({
+    intent: ProjectIntents.editProjectValue,
+    id: projectValidationObject.id,
+    projectValue: projectValidationObject.projectValue,
+  }),
 ]);
 
 export const DeleteProjectSchema = z.object({
   id: z.string().min(1),
+});
+
+export const AddProjectDiaryEntrySchema = z.object({
+  intent: ProjectIntents.addDiaryNote,
+  diaryNote: projectValidationObject.diaryNote,
+  noteId: z.string(),
+  id: projectValidationObject.id,
 });
 
 // export const validation_object_intents = {

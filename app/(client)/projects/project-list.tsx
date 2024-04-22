@@ -1,9 +1,9 @@
-import { ProjectDeep } from "@/lib/types/models";
+import { ProjectModel } from "@/lib/types/models";
 import { isBefore } from "date-fns";
 import ProjectListCard from "./project-list-card";
 
 type Props = {
-  projects: ProjectDeep[];
+  projects: ProjectModel[];
   handleOptimisticSelect: ({
     projectId,
     reset,
@@ -29,9 +29,9 @@ const ProjectsList = ({
             .map((project) => {
               return (
                 <ProjectListCard
-                  key={project.id}
+                  key={project.id + "-" + project.isSelected}
                   project={project}
-                  isSelected={project.isSelected}
+                  isSelected={project.isSelected ?? false}
                   handleOptimisticSelect={handleOptimisticSelect}
                   className={`${project.appearance?.background} ${project.appearance?.foreground}`}
                 />
@@ -40,9 +40,9 @@ const ProjectsList = ({
         : projects.map((project) => {
             return (
               <ProjectListCard
-                key={project.id}
+                key={project.id + "-" + project.isSelected}
                 project={project}
-                isSelected={project.isSelected}
+                isSelected={project.isSelected ?? false}
                 handleOptimisticSelect={handleOptimisticSelect}
                 className={`${project.appearance?.background} ${project.appearance?.foreground}`}
               />
