@@ -10,7 +10,7 @@ My general thought is that wouldn't it be great to have an application that help
 
 A user of the application will be able to create projects, where psychological principles are used to help the user manage, visualize and break down their particular goal. I have made some progress building this part of the web application out (though the layout / design will no doubt change), which you can view an image below:
 
-[Projects View](/images/projects-view.jpeg)
+![Projects View](/images/projects-view.jpeg)
 
 #### How will someone receive support?
 
