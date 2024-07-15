@@ -13,6 +13,12 @@ const projectValidationObject = {
   reward: z.string().min(1, "You need to enter at least one character."),
   dueDate: z.string().refine((val) => isValid(parseISO(val))),
   diaryNote: z.string(),
+  milestones: z.array(
+    z.object({
+      id: z.string(),
+      content: z.string(),
+    })
+  ),
 };
 
 export const CreateProjectSchema = z.object({
@@ -42,6 +48,7 @@ export const ProjectIntents = {
   editReward: z.literal("editReward"),
   addDiaryNote: z.literal("addDiaryNote"),
   editProjectValue: z.literal("editProjectValue"),
+  editMilestones: z.literal("editMilestones"),
 };
 
 export type ProjectIntent = {
@@ -89,6 +96,11 @@ export const EditProjectSchema = z.discriminatedUnion("intent", [
     intent: ProjectIntents.editProjectValue,
     id: projectValidationObject.id,
     projectValue: projectValidationObject.projectValue,
+  }),
+  z.object({
+    intent: ProjectIntents.editMilestones,
+    id: projectValidationObject.id,
+    milestones: projectValidationObject.milestones,
   }),
 ]);
 

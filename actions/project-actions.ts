@@ -20,6 +20,7 @@ export async function getProjectData() {
       appearance: true,
       notifications: true,
       diaryNotes: true,
+      milestones: true,
     },
     orderBy: {
       dueDate: "asc",

@@ -23,7 +23,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ProjectModel } from "@/lib/types/models";
-import { DollarSignIcon, Gift, NotebookIcon } from "lucide-react";
+import {
+  DollarSignIcon,
+  Gift,
+  MilestoneIcon,
+  NotebookIcon,
+} from "lucide-react";
 
 import CurrencyInputModal from "@/components/currency-input-modal";
 import DiaryNotesModal from "@/components/diary-notes-modal";
@@ -256,6 +261,15 @@ const ProjectDisplay = ({
                 fieldDescription="What value you place on this project"
                 intent="editProjectValue"
               />
+            </DisplayCard>
+            <DisplayCard
+              selectedProject={selectedProject}
+              cardTitle="Milestones"
+              Icon={MilestoneIcon}
+              className=" bg-white m-auto rounded-md p-0 mb-4 outline-2 outline-offset-2 hover:outline outline-gray-600"
+              description="Your next milestone is..."
+            >
+              Milestones here
             </DisplayCard>
 
             {/* <Card
